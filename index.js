@@ -3,13 +3,16 @@
 const Redis = require('ioredis')
 
 /**
- * @param {string} bitmap key
+ * @param {string | buffer} bitmap key or buffer
  * @param {object | string} redis config
  * @return {array}
  */
 async function readBitmap(key, redisConfig = { port: 6379, host: '127.0.0.1' }) {
-  const redis = new Redis(redisConfig)
-  const bitmapBuffer = await redis.getBuffer(key)
+  let bitmapBuffer = key
+  if (!Buffer.isBuffer(key) && typeof key === 'string') {
+    const redis = new Redis(redisConfig)
+    bitmapBuffer = await redis.getBuffer(key)
+  }
   const bitmapArray = [...bitmapBuffer]
   const result = []
 
@@ -26,4 +29,4 @@ async function readBitmap(key, redisConfig = { port: 6379, host: '127.0.0.1' }) 
   return result
 }
 
-module.export = readBitmap
+module.exports = readBitmap
